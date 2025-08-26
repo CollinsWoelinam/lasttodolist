@@ -1,378 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TaskFlow - Modern Task Manager</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task king - Modern Task Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
     <!-- Notification -->
     <div id="notification" class="notification hidden">
-      <i class="fas fa-check-circle"></i>
-      <div id="notificationText">Operation completed successfully</div>
+        <i class="fas fa-check-circle"></i>
+        <div id="notificationText">Operation completed successfully</div>
+    </div>
+    
+    <!-- Edit Task Modal -->
+    <div id="editTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Task</h3>
+                <button class="modal-close" id="closeEditModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-text">Edit your task below:</p>
+                <input type="text" id="editTaskInput" class="modal-input" placeholder="Task description">
+                <select id="editCategorySelect" class="modal-input">
+                    <option value="work">Work</option>
+                    <option value="personal">Personal</option>
+                    <option value="shopping">Shopping</option>
+                    <option value="health">Health</option>
+                    <option value="education">Education</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" id="cancelEdit">Cancel</button>
+                <button class="modal-btn confirm" id="saveTask">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Task Modal -->
+    <div id="deleteTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Delete Task</h3>
+                <button class="modal-close" id="closeDeleteModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-text">Are you sure you want to delete this task? This action cannot be undone.</p>
+                <p class="modal-text" id="taskToDelete"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" id="cancelDelete">Cancel</button>
+                <button class="modal-btn delete" id="confirmDelete">Delete Task</button>
+            </div>
+        </div>
     </div>
 
     <!-- Login/Signup Page -->
     <div id="loginPage" class="login-container">
-      <div class="login-logo">
-        <i class="fas fa-stream"></i>
-        <h1>TaskFlow</h1>
-        <p style="color: var(--gray); margin-top: 8px; font-weight: 500">
-          Streamline your tasks, amplify your productivity
-        </p>
-      </div>
-
-      <div id="loginForm">
-        <div class="form-group">
-          <label class="form-label" for="loginEmail">Email</label>
-          <input
-            type="email"
-            id="loginEmail"
-            class="form-input"
-            placeholder="Enter your email"
-          />
+        <div class="login-logo">
+            <i class="fas fa-stream"></i>
+            <h1>Task King</h1>
+            <p style="color: var(--gray); margin-top: 8px; font-weight: 500;">Streamline your tasks, amplify your productivity</p>
         </div>
+        
+        <div id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password">
+            </div>
 
-        <div class="form-group">
-          <label class="form-label" for="loginPassword">Password</label>
-          <input
-            type="password"
-            id="loginPassword"
-            class="form-input"
-            placeholder="Enter your password"
-          />
+            <div id="loginError" class="error-message hidden"></div>
+            
+            <button id="loginButton" class="login-btn">Sign In</button>
+            
+            <div class="auth-toggle">
+                Don't have an account? <a id="showSignup">Sign Up</a>
+            </div>
         </div>
+        
+        <div id="signupForm" class="hidden">
+            <div class="form-group">
+                <label class="form-label" for="signupName">Full Name</label>
+                <input type="text" id="signupName" class="form-input" placeholder="Enter your full name">
+            </div>
 
-        <div id="loginError" class="error-message hidden"></div>
+            <div class="form-group">
+                <label class="form-label" for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" class="form-input" placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" class="form-input" placeholder="Create a password (min. 6 characters)">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm your password">
+            </div>
 
-        <button id="loginButton" class="login-btn">Sign In</button>
-
-        <div class="auth-toggle">
-          Don't have an account? <a id="showSignup">Sign Up</a>
+            <div id="signupError" class="error-message hidden"></div>
+            
+            <button id="signupButton" class="login-btn">Create Account</button>
+            
+            <div class="auth-toggle">
+                Already have an account? <a id="showLogin">Sign In</a>
+            </div>
         </div>
-      </div>
-
-      <div id="signupForm" class="hidden">
-        <div class="form-group">
-          <label class="form-label" for="signupName">Full Name</label>
-          <input
-            type="text"
-            id="signupName"
-            class="form-input"
-            placeholder="Enter your full name"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="signupEmail">Email</label>
-          <input
-            type="email"
-            id="signupEmail"
-            class="form-input"
-            placeholder="Enter your email"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="signupPassword">Password</label>
-          <input
-            type="password"
-            id="signupPassword"
-            class="form-input"
-            placeholder="Create a password (min. 6 characters)"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="confirmPassword"
-            >Confirm Password</label
-          >
-          <input
-            type="password"
-            id="confirmPassword"
-            class="form-input"
-            placeholder="Confirm your password"
-          />
-        </div>
-
-        <div id="signupError" class="error-message hidden"></div>
-
-        <button id="signupButton" class="login-btn">Create Account</button>
-
-        <div class="auth-toggle">
-          Already have an account? <a id="showLogin">Sign In</a>
-        </div>
-      </div>
     </div>
 
     <!-- Main Application -->
     <div id="appContainer" class="app-container hidden">
-      <div class="sidebar">
-        <div class="logo">
-          <i class="fas fa-stream"></i>
-          <span>TaskFlow</span>
-        </div>
-
-        <div class="nav-items">
-          <div class="nav-item active" data-page="dashboard">
-            <i class="fas fa-home"></i>
-            <span>Dashboard</span>
-          </div>
-          <div class="nav-item" data-page="tasks">
-            <i class="fas fa-tasks"></i>
-            <span>My Tasks</span>
-          </div>
-          <div class="nav-item" data-page="analytics">
-            <i class="fas fa-chart-pie"></i>
-            <span>Analytics</span>
-          </div>
-        </div>
-
-        <button class="sign-out-btn" id="signOutButton">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Sign Out</span>
-        </button>
-      </div>
-
-      <div class="main-content">
-        <div class="header">
-          <h2 id="pageTitle">Dashboard</h2>
-          <div class="user-info">
-            <div class="user-avatar" id="userAvatar">JS</div>
-            <div>
-              <div id="userName">John Smith</div>
-              <div id="userEmail" style="font-size: 13px; color: var(--gray)">
-                john@example.com
-              </div>
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-stream"></i>
+                <span>Task King</span>
             </div>
-          </div>
-        </div>
-
-        <div class="content">
-          <!-- Dashboard Page -->
-          <div id="dashboardPage" class="page active">
-            <h3 class="section-title">
-              <i class="fas fa-plus-circle"></i>
-              <span>Add New Task</span>
-            </h3>
-
-            <div class="task-form">
-              <input
-                type="text"
-                id="taskInput"
-                class="task-input"
-                placeholder="What do you need to do?"
-              />
-              <select id="categorySelect" class="category-select">
-                <option value="work">Work</option>
-                <option value="personal">Personal</option>
-                <option value="shopping">Shopping</option>
-                <option value="health">Health</option>
-                <option value="education">Education</option>
-              </select>
-              <button id="addTaskBtn" class="add-btn">
-                <i class="fas fa-plus"></i>
-                <span>Add Task</span>
-              </button>
-            </div>
-
-            <h3 class="section-title">
-              <i class="fas fa-tasks"></i>
-              <span>Recent Tasks</span>
-            </h3>
-
-            <div class="filter-bar">
-              <button class="filter-btn active" data-filter="all">
-                <i class="fas fa-layer-group"></i>
-                <span>All Tasks</span>
-              </button>
-              <button class="filter-btn" data-filter="work">
-                <i class="fas fa-briefcase"></i>
-                <span>Work</span>
-              </button>
-              <button class="filter-btn" data-filter="personal">
-                <i class="fas fa-user"></i>
-                <span>Personal</span>
-              </button>
-              <button class="filter-btn" data-filter="shopping">
-                <i class="fas fa-shopping-cart"></i>
-                <span>Shopping</span>
-              </button>
-              <button class="filter-btn" data-filter="health">
-                <i class="fas fa-heartbeat"></i>
-                <span>Health</span>
-              </button>
-              <button class="filter-btn" data-filter="education">
-                <i class="fas fa-graduation-cap"></i>
-                <span>Education</span>
-              </button>
-              <button class="filter-btn" data-filter="active">
-                <i class="fas fa-clock"></i>
-                <span>Active</span>
-              </button>
-              <button class="filter-btn" data-filter="completed">
-                <i class="fas fa-check-circle"></i>
-                <span>Completed</span>
-              </button>
-            </div>
-
-            <div class="tasks-container" id="tasksContainer">
-              <div class="loading">
-                <div class="loading-spinner"></div>
-              </div>
-            </div>
-
-            <h3 class="section-title">
-              <i class="fas fa-chart-pie"></i>
-              <span>Task Statistics</span>
-            </h3>
-
-            <div class="stats-container">
-              <div class="stat-card">
-                <div class="stat-value" id="totalTasks">0</div>
-                <div class="stat-label">Total Tasks</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value" id="completedTasks">0</div>
-                <div class="stat-label">Completed</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value" id="activeTasks">0</div>
-                <div class="stat-label">Active</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value" id="todayTasks">0</div>
-                <div class="stat-label">Due Today</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tasks Page -->
-          <div id="tasksPage" class="page">
-            <h3 class="section-title">
-              <i class="fas fa-tasks"></i>
-              <span>All My Tasks</span>
-            </h3>
-
-            <div class="filter-bar">
-              <button class="filter-btn active" data-filter="all">
-                <i class="fas fa-layer-group"></i>
-                <span>All Tasks</span>
-              </button>
-              <button class="filter-btn" data-filter="work">
-                <i class="fas fa-briefcase"></i>
-                <span>Work</span>
-              </button>
-              <button class="filter-btn" data-filter="personal">
-                <i class="fas fa-user"></i>
-                <span>Personal</span>
-              </button>
-              <button class="filter-btn" data-filter="shopping">
-                <i class="fas fa-shopping-cart"></i>
-                <span>Shopping</span>
-              </button>
-              <button class="filter-btn" data-filter="health">
-                <i class="fas fa-heartbeat"></i>
-                <span>Health</span>
-              </button>
-              <button class="filter-btn" data-filter="education">
-                <i class="fas fa-graduation-cap"></i>
-                <span>Education</span>
-              </button>
-              <button class="filter-btn" data-filter="active">
-                <i class="fas fa-clock"></i>
-                <span>Active</span>
-              </button>
-              <button class="filter-btn" data-filter="completed">
-                <i class="fas fa-check-circle"></i>
-                <span>Completed</span>
-              </button>
-            </div>
-
-            <div class="tasks-container" id="allTasksContainer">
-              <div class="loading">
-                <div class="loading-spinner"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Analytics Page -->
-          <div id="analyticsPage" class="page">
-            <h3 class="section-title">
-              <i class="fas fa-chart-pie"></i>
-              <span>Task Analytics</span>
-            </h3>
-
-            <div class="stats-container">
-              <div class="stat-card">
-                <div class="stat-value" id="analyticsTotalTasks">0</div>
-                <div class="stat-label">Total Tasks</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value" id="analyticsCompletedTasks">0</div>
-                <div class="stat-label">Completed</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value" id="analyticsCompletionRate">0%</div>
-                <div class="stat-label">Completion Rate</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value" id="analyticsAvgCompletion">0</div>
-                <div class="stat-label">Avg. Completion Time (days)</div>
-              </div>
-            </div>
-
-            <div class="analytics-container">
-              <div class="chart-container">
-                <div class="chart-title">
-                  <i class="fas fa-chart-pie"></i>
-                  <span>Tasks by Category</span>
+            
+            <div class="nav-items">
+                <div class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
                 </div>
-                <canvas id="categoryChart"></canvas>
-              </div>
-
-              <div class="chart-container">
-                <div class="chart-title">
-                  <i class="fas fa-chart-bar"></i>
-                  <span>Completion Status</span>
+                <div class="nav-item" data-page="tasks">
+                    <i class="fas fa-tasks"></i>
+                    <span>My Tasks</span>
                 </div>
-                <canvas id="completionChart"></canvas>
-              </div>
-
-              <div class="chart-container">
-                <div class="chart-title">
-                  <i class="fas fa-chart-line"></i>
-                  <span>Weekly Productivity</span>
+                <div class="nav-item" data-page="analytics">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Analytics</span>
                 </div>
-                <canvas id="productivityChart"></canvas>
-              </div>
-
-              <div class="chart-container">
-                <div class="chart-title">
-                  <i class="fas fa-calendar"></i>
-                  <span>Tasks Over Time</span>
-                </div>
-                <canvas id="timelineChart"></canvas>
-              </div>
             </div>
-          </div>
+            
+            <button class="sign-out-btn" id="signOutButton">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sign Out</span>
+            </button>
         </div>
-      </div>
+        
+        <div class="main-content">
+            <div class="header">
+                <h2 id="pageTitle">Dashboard</h2>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">JS</div>
+                    <div>
+                        <div id="userName">John Smith</div>
+                        <div id="userEmail" style="font-size: 13px; color: var(--gray);">john@example.com</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page active">
+                    <h3 class="section-title">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add New Task</span>
+                    </h3>
+                    
+                    <div class="task-form">
+                        <input type="text" id="taskInput" class="task-input" placeholder="What do you need to do?">
+                        <select id="categorySelect" class="category-select">
+                            <option value="work">Work</option>
+                            <option value="personal">Personal</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="health">Health</option>
+                            <option value="education">Education</option>
+                        </select>
+                        <button id="addTaskBtn" class="add-btn">
+                            <i class="fas fa-plus"></i>
+                            <span>Add Task</span>
+                        </button>
+                    </div>
+                    
+                    <h3 class="section-title">
+                        <i class="fas fa-tasks"></i>
+                        <span>Recent Tasks</span>
+                    </h3>
+                    
+                    <div class="filter-bar">
+                        <button class="filter-btn active" data-filter="all">
+                            <i class="fas fa-layer-group"></i>
+                            <span>All Tasks</span>
+                        </button>
+                        <button class="filter-btn" data-filter="work">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Work</span>
+                        </button>
+                        <button class="filter-btn" data-filter="personal">
+                            <i class="fas fa-user"></i>
+                            <span>Personal</span>
+                        </button>
+                        <button class="filter-btn" data-filter="shopping">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Shopping</span>
+                        </button>
+                        <button class="filter-btn" data-filter="health">
+                            <i class="fas fa-heartbeat"></i>
+                            <span>Health</span>
+                        </button>
+                        <button class="filter-btn" data-filter="education">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Education</span>
+                        </button>
+                        <button class="filter-btn" data-filter="active">
+                            <i class="fas fa-clock"></i>
+                            <span>Active</span>
+                        </button>
+                        <button class="filter-btn" data-filter="completed">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Completed</span>
+                        </button>
+                    </div>
+                    
+                    <div class="tasks-container" id="tasksContainer">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            <p>Loading your tasks...</p>
+                        </div>
+                    </div>
+                    
+                    <h3 class="section-title">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Task Statistics</span>
+                    </h3>
+                    
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalTasks">0</div>
+                            <div class="stat-label">Total Tasks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="completedTasks">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="activeTasks">0</div>
+                            <div class="stat-label">Active</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="todayTasks">0</div>
+                            <div class="stat-label">Due Today</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Page -->
+                <div id="tasksPage" class="page">
+                    <h3 class="section-title">
+                        <i class="fas fa-tasks"></i>
+                        <span>All My Tasks</span>
+                    </h3>
+                    
+                    <div class="filter-bar">
+                        <button class="filter-btn active" data-filter="all">
+                            <i class="fas fa-layer-group"></i>
+                            <span>All Tasks</span>
+                        </button>
+                        <button class="filter-btn" data-filter="work">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Work</span>
+                        </button>
+                        <button class="filter-btn" data-filter="personal">
+                            <i class="fas fa-user"></i>
+                            <span>Personal</span>
+                        </button>
+                        <button class="filter-btn" data-filter="shopping">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Shopping</span>
+                        </button>
+                        <button class="filter-btn" data-filter="health">
+                            <i class="fas fa-heartbeat"></i>
+                            <span>Health</span>
+                        </button>
+                        <button class="filter-btn" data-filter="education">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Education</span>
+                        </button>
+                        <button class="filter-btn" data-filter="active">
+                            <i class="fas fa-clock"></i>
+                            <span>Active</span>
+                        </button>
+                        <button class="filter-btn" data-filter="completed">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Completed</span>
+                        </button>
+                    </div>
+                    
+                    <div class="tasks-container" id="allTasksContainer">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            <p>Loading your tasks...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Page -->
+                <div id="analyticsPage" class="page">
+                    <h3 class="section-title">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Task Analytics</span>
+                    </h3>
+                    
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-value" id="analyticsTotalTasks">0</div>
+                            <div class="stat-label">Total Tasks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="analyticsCompletedTasks">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="analyticsCompletionRate">0%</div>
+                            <div class="stat-label">Completion Rate</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="analyticsAvgCompletion">0</div>
+                            <div class="stat-label">Avg. Completion Time (days)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-container">
+                        <div class="chart-container">
+                            <div class="chart-title">
+                                <i class="fas fa-chart-pie"></i>
+                                <span>Tasks by Category</span>
+                            </div>
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="chart-title">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Completion Status</span>
+                            </div>
+                            <canvas id="completionChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="chart-title">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Weekly Productivity</span>
+                            </div>
+                            <canvas id="productivityChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="chart-title">
+                                <i class="fas fa-calendar"></i>
+                                <span>Tasks Over Time</span>
+                            </div>
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="auth.js"></script>
     <script type="module" src="app.js"></script>
-  </body>
+</body>
 </html>

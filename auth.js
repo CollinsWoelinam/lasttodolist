@@ -2,14 +2,14 @@ import {
     auth, 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
-    signOut, 
-    onAuthStateChanged, 
+    signOut,
+    onAuthStateChanged,
     updateProfile,
     db,
     setDoc,
-    getDoc,
     doc,
-    serverTimestamp
+    serverTimestamp,
+    getDoc
 } from './firebase-config.js';
 
 // DOM elements
@@ -27,6 +27,18 @@ const userName = document.getElementById('userName');
 const userEmail = document.getElementById('userEmail');
 const loginError = document.getElementById('loginError');
 const signupError = document.getElementById('signupError');
+
+// Show error message
+function showError(element, message) {
+    element.textContent = message;
+    element.classList.remove('hidden');
+}
+
+// Hide error message
+function hideError(element) {
+    element.textContent = '';
+    element.classList.add('hidden');
+}
 
 // Toggle between login and signup forms
 showSignup.addEventListener('click', () => {
@@ -136,8 +148,8 @@ signOutButton.addEventListener('click', () => {
     signOut(auth).then(() => {
         // Clear tasks and update UI
         window.tasks = [];
-        renderTasks();
-        updateAnalytics();
+        if (window.renderTasks) window.renderTasks();
+        if (window.updateAnalytics) window.updateAnalytics();
         showNotification('Signed out successfully');
     }).catch((error) => {
         console.error('Error signing out:', error);
@@ -173,39 +185,29 @@ onAuthStateChanged(auth, async (user) => {
         appContainer.classList.remove('hidden');
         
         // Ensure Dashboard is the active page
-        document.querySelectorAll('.nav-item').forEach(navItem => navItem.classList.remove('active'));
+        const navItems = document.querySelectorAll('.nav-item[data-page]');
+        navItems.forEach(navItem => navItem.classList.remove('active'));
         document.querySelector('[data-page="dashboard"]').classList.add('active');
         
-        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => page.classList.remove('active'));
         document.getElementById('dashboardPage').classList.add('active');
         
         document.getElementById('pageTitle').textContent = 'Dashboard';
         
-        loadTasks();
+        if (window.loadTasks) window.loadTasks();
     } else {
         window.currentUser = null;
         loginPage.classList.remove('hidden');
         appContainer.classList.add('hidden');
         document.getElementById('tasksContainer').innerHTML = '';
         document.getElementById('allTasksContainer').innerHTML = '';
-        updateStats(0, 0, 0);
+        if (window.updateStats) window.updateStats(0, 0, 0);
         
         // Clear tasks when user signs out
         window.tasks = [];
     }
 });
 
-// Utility functions
-function showError(element, message) {
-    element.textContent = message;
-    element.classList.remove('hidden');
-}
-
-function hideError(element) {
-    element.textContent = '';
-    element.classList.add('hidden');
-}
-
-// Make functions available globally
-window.showError = showError;
-window.hideError = hideError;
+// Export auth functions
+export { auth, onAuthStateChanged, signOut };

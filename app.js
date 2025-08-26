@@ -8,7 +8,8 @@ import {
     onSnapshot, 
     query, 
     where,
-    serverTimestamp
+    serverTimestamp,
+    getDoc
 } from './firebase-config.js';
 
 // DOM elements
@@ -23,27 +24,41 @@ const notificationText = document.getElementById('notificationText');
 const pageTitle = document.getElementById('pageTitle');
 const navItems = document.querySelectorAll('.nav-item[data-page]');
 const pages = document.querySelectorAll('.page');
-
+        
+// Modal elements
+const editTaskModal = document.getElementById('editTaskModal');
+const deleteTaskModal = document.getElementById('deleteTaskModal');
+const editTaskInput = document.getElementById('editTaskInput');
+const editCategorySelect = document.getElementById('editCategorySelect');
+const taskToDelete = document.getElementById('taskToDelete');
+const closeEditModal = document.getElementById('closeEditModal');
+const closeDeleteModal = document.getElementById('closeDeleteModal');
+const cancelEdit = document.getElementById('cancelEdit');
+const cancelDelete = document.getElementById('cancelDelete');
+const saveTask = document.getElementById('saveTask');
+const confirmDelete = document.getElementById('confirmDelete');
+        
 // Statistics elements
 const totalTasksElement = document.getElementById('totalTasks');
 const completedTasksElement = document.getElementById('completedTasks');
 const activeTasksElement = document.getElementById('activeTasks');
 const todayTasksElement = document.getElementById('todayTasks');
-
+        
 // Analytics elements
 const analyticsTotalTasks = document.getElementById('analyticsTotalTasks');
 const analyticsCompletedTasks = document.getElementById('analyticsCompletedTasks');
 const analyticsCompletionRate = document.getElementById('analyticsCompletionRate');
 const analyticsAvgCompletion = document.getElementById('analyticsAvgCompletion');
-
+        
 // Chart instances
 let categoryChart, completionChart, productivityChart, timelineChart;
-
+        
 // Current user and filter state
 window.currentUser = null;
 window.currentFilter = 'all';
 window.tasks = [];
 window.unsubscribeTasks = null;
+let currentTaskId = null;
 
 // Show notification
 function showNotification(message, isSuccess = true) {
@@ -55,6 +70,60 @@ function showNotification(message, isSuccess = true) {
         notification.classList.remove('show');
     }, 3000);
 }
+
+// Modal functions
+function openModal(modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+    currentTaskId = null;
+}
+
+// Set up modal event listeners
+closeEditModal.addEventListener('click', () => closeModal(editTaskModal));
+closeDeleteModal.addEventListener('click', () => closeModal(deleteTaskModal));
+cancelEdit.addEventListener('click', () => closeModal(editTaskModal));
+cancelDelete.addEventListener('click', () => closeModal(deleteTaskModal));
+
+// Save task changes
+saveTask.addEventListener('click', async () => {
+    const newText = editTaskInput.value.trim();
+    const newCategory = editCategorySelect.value;
+    
+    if (newText !== '' && currentTaskId) {
+        try {
+            await updateDoc(doc(db, 'tasks', currentTaskId), {
+                text: newText,
+                category: newCategory
+            });
+            closeModal(editTaskModal);
+            showNotification('Task updated successfully');
+        } catch (error) {
+            console.error('Error updating task:', error);
+            showNotification('Error updating task: ' + error.message, false);
+        }
+    } else {
+        showNotification('Please enter a task', false);
+    }
+});
+
+// Confirm task deletion
+confirmDelete.addEventListener('click', async () => {
+    if (currentTaskId) {
+        try {
+            await deleteDoc(doc(db, 'tasks', currentTaskId));
+            closeModal(deleteTaskModal);
+            showNotification('Task deleted successfully');
+        } catch (error) {
+            console.error('Error deleting task:', error);
+            showNotification('Error deleting task: ' + error.message, false);
+        }
+    }
+});
 
 // Navigation
 navItems.forEach(item => {
@@ -237,33 +306,19 @@ function renderTaskList(taskList, container) {
         
         // Delete task
         const deleteBtn = taskElement.querySelector('.delete');
-        deleteBtn.addEventListener('click', async () => {
-            if (confirm('Are you sure you want to delete this task?')) {
-                try {
-                    await deleteDoc(doc(db, 'tasks', task.id));
-                    showNotification('Task deleted successfully');
-                } catch (error) {
-                    console.error('Error deleting task:', error);
-                    showNotification('Error deleting task: ' + error.message, false);
-                }
-            }
+        deleteBtn.addEventListener('click', () => {
+            currentTaskId = task.id;
+            taskToDelete.textContent = task.text;
+            openModal(deleteTaskModal);
         });
         
         // Edit task
         const editBtn = taskElement.querySelector('.edit');
-        editBtn.addEventListener('click', async () => {
-            const newText = prompt('Edit task:', task.text);
-            if (newText !== null && newText.trim() !== '') {
-                try {
-                    await updateDoc(doc(db, 'tasks', task.id), {
-                        text: newText.trim()
-                    });
-                    showNotification('Task updated successfully');
-                } catch (error) {
-                    console.error('Error updating task:', error);
-                    showNotification('Error updating task: ' + error.message, false);
-                }
-            }
+        editBtn.addEventListener('click', () => {
+            currentTaskId = task.id;
+            editTaskInput.value = task.text;
+            editCategorySelect.value = task.category;
+            openModal(editTaskModal);
         });
         
         container.appendChild(taskElement);
@@ -509,7 +564,7 @@ function updateCharts() {
                 label: 'Tasks Completed',
                 data: weeklyData.data,
                 backgroundColor: '#6C63FF'
-            }]
+        }]
         },
         options: {
             responsive: true,
@@ -583,7 +638,7 @@ setTimeout(() => {
     }
 }, 1000);
 
-// Make functions available globally
+// Export functions for use in other modules
 window.showNotification = showNotification;
 window.loadTasks = loadTasks;
 window.renderTasks = renderTasks;
